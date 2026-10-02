@@ -1,0 +1,270 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MembershipRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum ContentType {
+  POST
+  VIDEO
+  SCRIPT
+  CAPTION
+  HOOK
+  IDEA
+  IMAGE
+  UGC
+}
+
+enum ContentStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum OpportunityStatus {
+  NEW
+  SAVED
+  DISMISSED
+  ACTIONED
+}
+
+enum Platform {
+  INSTAGRAM
+  TIKTOK
+  YOUTUBE
+  X
+  LINKEDIN
+  OTHER
+}
+
+enum ConnectionStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+  ERROR
+}
+
+model User {
+  id              String       @id @default(cuid())
+  email           String       @unique
+  passwordHash    String
+  name            String?
+  image           String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  sessions        Session[]
+  memberships     Membership[]
+  contentItems    ContentItem[] @relation("CreatedContent")
+  analytics       AnalyticsSnapshot[] @relation("UserAnalytics")
+}
+
+model Session {
+  id          String   @id @default(cuid())
+  tokenHash   String   @unique
+  userId      String
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Workspace {
+  id              String              @id @default(cuid())
+  name            String
+  slug            String              @unique
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  memberships     Membership[]
+  brandBrain      BrandBrain?
+  contentDNA      ContentDNA?
+  contentItems    ContentItem[]
+  opportunities   Opportunity[]
+  campaigns       Campaign[]
+  connections     SocialConnection[]
+  analytics       AnalyticsSnapshot[]
+  recommendations Recommendation[]
+}
+
+model Membership {
+  id          String         @id @default(cuid())
+  userId      String
+  workspaceId String
+  role        MembershipRole @default(MEMBER)
+  createdAt   DateTime       @default(now())
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+  @@index([workspaceId])
+}
+
+model BrandBrain {
+  id             String    @id @default(cuid())
+  workspaceId    String    @unique
+  businessName   String?
+  niche          String?
+  audience       String?
+  positioning    String?
+  voice          String?
+  goals          String[]  @default([])
+  offers         String[]  @default([])
+  competitors    String[]  @default([])
+  contentPillars String[]  @default([])
+  websiteUrl     String?
+  context        Json?
+  completeness   Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  workspace      Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model ContentDNA {
+  id                 String    @id @default(cuid())
+  workspaceId        String    @unique
+  winningFormats     Json?
+  winningTopics      Json?
+  winningHooks       Json?
+  winningStructures  Json?
+  audienceSignals    Json?
+  platformPatterns  Json?
+  learnings          String[]  @default([])
+  confidence         Float     @default(0)
+  analyzedItems      Int       @default(0)
+  updatedAt          DateTime  @updatedAt
+  workspace          Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model ContentItem {
+  id            String        @id @default(cuid())
+  workspaceId   String
+  createdById   String
+  title         String
+  type          ContentType
+  status        ContentStatus @default(DRAFT)
+  platform      Platform?
+  body          String?
+  hook          String?
+  caption       String?
+  mediaUrl      String?
+  metadata      Json?
+  scheduledAt   DateTime?
+  publishedAt   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  workspace     Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy     User          @relation("CreatedContent", fields: [createdById], references: [id], onDelete: Cascade)
+  analytics     AnalyticsSnapshot[]
+
+  @@index([workspaceId, status])
+  @@index([workspaceId, createdAt])
+}
+
+model Opportunity {
+  id            String             @id @default(cuid())
+  workspaceId   String
+  title         String
+  description   String?
+  source        String?
+  platform      Platform?
+  score         Float              @default(0)
+  status        OpportunityStatus  @default(NEW)
+  trendData     Json?
+  suggestedHook String?
+  suggestedAngle String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  workspace     Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, status])
+}
+
+model Campaign {
+  id          String        @id @default(cuid())
+  workspaceId String
+  name        String
+  description String?
+  goal        String?
+  status      String        @default("DRAFT")
+  startsAt    DateTime?
+  endsAt      DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+}
+
+model SocialConnection {
+  id           String           @id @default(cuid())
+  workspaceId  String
+  platform     Platform
+  accountId    String
+  username     String?
+  accessToken  String?
+  refreshToken String?
+  expiresAt    DateTime?
+  scopes       String[]         @default([])
+  status       ConnectionStatus @default(ACTIVE)
+  metadata     Json?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  workspace    Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, platform, accountId])
+  @@index([workspaceId, platform])
+}
+
+model AnalyticsSnapshot {
+  id          String        @id @default(cuid())
+  workspaceId String
+  contentId   String?
+  userId      String?
+  platform    Platform
+  date        DateTime
+  views       Int           @default(0)
+  likes       Int           @default(0)
+  comments    Int           @default(0)
+  shares      Int           @default(0)
+  saves       Int           @default(0)
+  followers   Int           @default(0)
+  reach       Int           @default(0)
+  engagementRate Float      @default(0)
+  metadata    Json?
+  createdAt   DateTime      @default(now())
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  content     ContentItem?  @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  user        User?         @relation("UserAnalytics", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, platform, date, contentId])
+  @@index([workspaceId, date])
+}
+
+model Recommendation {
+  id          String    @id @default(cuid())
+  workspaceId String
+  title       String
+  description String
+  actionType  String
+  priority    Int       @default(0)
+  confidence  Float     @default(0)
+  status      String    @default("OPEN")
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, status, priority])
+}
