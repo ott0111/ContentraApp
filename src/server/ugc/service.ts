@@ -4,6 +4,7 @@ import { assertPlanLimit, consumePlanUsage } from "@/server/usage/limits";
 import { auditLog } from "@/server/security/audit";
 import { getBrandBrain } from "@/server/brand-brain/service";
 import { startVideoGeneration } from "./veo";
+import { enqueueJob } from "@/server/jobs/service";
 
 export async function createUGCJob(input: {
   workspaceId: string;
@@ -55,6 +56,12 @@ export async function createUGCJob(input: {
     const updated = await db.generationJob.update({
       where: { id: generation.id },
       data: { operationName: operation.operationName, model: operation.model }
+    });
+
+    await enqueueJob({
+      workspaceId: input.workspaceId,
+      kind: "POLL_UGC_GENERATION",
+      payload: { generationId: generation.id }
     });
 
     await auditLog({
