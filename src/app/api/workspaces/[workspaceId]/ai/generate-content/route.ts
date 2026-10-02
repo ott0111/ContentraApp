@@ -3,8 +3,10 @@ import { requireMembership } from "@/lib/access";
 import { db } from "@/lib/db";
 import { generateText } from "@/lib/ai";
 import { error, handleError, ok } from "@/lib/http";
+import { requireEntitlement } from "@/server/access/require-entitlement";
 import { parseJsonObject } from "@/lib/json";
 import { z } from "zod";
+import { requireEntitlement } from "@/server/access/require-entitlement";
 
 const schema = z.object({
   prompt: z.string().trim().min(1).max(10000),
@@ -26,6 +28,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
     const user = await requireUser();
     const { workspaceId } = await params;
     await requireMembership(user.id, workspaceId, "MEMBER");
+    await requireEntitlement(workspaceId, "ai_generation");
     const input = schema.parse(await request.json());
 
     const [brain, dna] = await Promise.all([
