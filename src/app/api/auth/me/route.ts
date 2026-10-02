@@ -1,18 +1,8 @@
 import { getCurrentUser } from "@/lib/auth";
-import { error, ok } from "@/lib/http";
-
-export async function GET() {
-  const user = await getCurrentUser();
-  if (!user) return error("Authentication required", 401);
-
-  const memberships = await (await import("@/lib/db")).db.membership.findMany({
-    where: { userId: user.id },
-    include: { workspace: true },
-    orderBy: { createdAt: "asc" }
-  });
-
-  return ok({
-    user: { id: user.id, email: user.email, name: user.name, image: user.image },
-    workspaces: memberships.map((m) => ({ ...m.workspace, role: m.role }))
-  });
-}
+import { db } from "@/lib/db";
+import { error, handleError, ok } from "@/lib/http";
+import { z } from "zod";
+import bcrypt from "bcryptjs";
+const schema=z.object({name:z.string().trim().max(100).optional(),currentPassword:z.string().optional(),newPassword:z.string().min(8).max(200).optional()});
+export async function GET(){const user=await getCurrentUser();if(!user)return error("Authentication required",401);const memberships=await db.membership.findMany({where:{userId:user.id},include:{workspace:true},orderBy:{createdAt:"asc"}});return ok({user:{id:user.id,email:user.email,name:user.name,image:user.image},workspaces:memberships.map(m=>({...m.workspace,role:m.role}))});}
+export async function PATCH(request:Request){try{const user=await getCurrentUser();if(!user)return error("Authentication required",401);const input=schema.parse(await request.json());if(input.newPassword){if(!input.currentPassword)return error("Current password is required",400);const fresh=await db.user.findUnique({where:{id:user.id}});if(!fresh||!(await bcrypt.compare(input.currentPassword,fresh.passwordHash)))return error("Current password is incorrect",400);}const data:any={};if(input.name!==undefined)data.name=input.name;if(input.newPassword)data.passwordHash=await bcrypt.hash(input.newPassword,12);const updated=await db.user.update({where:{id:user.id},data,select:{id:true,email:true,name:true,image:true}});return ok(updated);}catch(err){return handleError(err);}}
