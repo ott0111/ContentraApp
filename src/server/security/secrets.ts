@@ -1,17 +1,9 @@
-import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
+import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
 
 function key() {
   const secret = process.env.SESSION_SECRET;
   if (!secret) throw new Error("SESSION_SECRET is not configured");
-  return Buffer.from(new Uint8Array(requireKeyBytes(secret)));
-}
-
-function requireKeyBytes(secret: string) {
-  return createHashBytes(secret).subarray(0, 32);
-}
-
-function createHashBytes(secret: string) {
-  return Buffer.from(require("node:crypto").createHash("sha256").update(secret).digest());
+  return createHash("sha256").update(secret).digest();
 }
 
 export function encryptSecret(value: string) {
@@ -24,7 +16,9 @@ export function encryptSecret(value: string) {
 
 export function decryptSecret(value: string) {
   const [version, ivText, tagText, encryptedText] = value.split(".");
-  if (version !== "v1" || !ivText || !tagText || !encryptedText) throw new Error("Invalid encrypted secret");
+  if (version !== "v1" || !ivText || !tagText || !encryptedText) {
+    throw new Error("Invalid encrypted secret");
+  }
   const decipher = createDecipheriv("aes-256-gcm", key(), Buffer.from(ivText, "base64url"));
   decipher.setAuthTag(Buffer.from(tagText, "base64url"));
   return Buffer.concat([
