@@ -13,6 +13,7 @@ enum ContentStatus { DRAFT SCHEDULED PUBLISHED ARCHIVED }
 enum OpportunityStatus { NEW SAVED DISMISSED ACTIONED }
 enum Platform { INSTAGRAM TIKTOK YOUTUBE X LINKEDIN OTHER }
 enum ConnectionStatus { ACTIVE EXPIRED REVOKED ERROR }
+enum GenerationStatus { QUEUED PROCESSING COMPLETED FAILED }
 
 model User {
   id String @id @default(cuid())
@@ -26,6 +27,7 @@ model User {
   memberships Membership[]
   contentItems ContentItem[] @relation("CreatedContent")
   analytics AnalyticsSnapshot[] @relation("UserAnalytics")
+  generations GenerationJob[] @relation("CreatedGenerations")
 }
 
 model Session {
@@ -54,6 +56,8 @@ model Workspace {
   connections SocialConnection[]
   analytics AnalyticsSnapshot[]
   recommendations Recommendation[]
+  generations GenerationJob[]
+  characters UGCCharacter[]
 }
 
 model Membership {
@@ -219,4 +223,46 @@ model Recommendation {
   updatedAt DateTime @updatedAt
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   @@index([workspaceId, status, priority])
+}
+
+model UGCCharacter {
+  id String @id @default(cuid())
+  workspaceId String
+  name String
+  description String?
+  visualPrompt String
+  imageUrl String?
+  metadata Json?
+  active Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  generations GenerationJob[]
+  @@index([workspaceId, active])
+}
+
+model GenerationJob {
+  id String @id @default(cuid())
+  workspaceId String
+  createdById String
+  characterId String?
+  contentId String?
+  kind String
+  status GenerationStatus @default(QUEUED)
+  provider String?
+  model String?
+  prompt String
+  operationName String?
+  outputUrl String?
+  outputMimeType String?
+  error String?
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy User @relation("CreatedGenerations", fields: [createdById], references: [id], onDelete: Cascade)
+  character UGCCharacter? @relation(fields: [characterId], references: [id], onDelete: SetNull)
+  content ContentItem? @relation(fields: [contentId], references: [id], onDelete: SetNull)
+  @@index([workspaceId, status, createdAt])
+  @@index([operationName])
 }
