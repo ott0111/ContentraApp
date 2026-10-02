@@ -16,6 +16,7 @@ enum ConnectionStatus { ACTIVE EXPIRED REVOKED ERROR }
 enum Plan { FREE PRO BUSINESS AGENCY }
 enum SubscriptionStatus { TRIALING ACTIVE PAST_DUE CANCELED EXPIRED }
 enum BillingProvider { PADDLE STRIPE MANUAL }
+enum GenerationStatus { QUEUED PROCESSING COMPLETED FAILED }
 
 model User {
   id String @id @default(cuid())
@@ -30,6 +31,7 @@ model User {
   contentItems ContentItem[] @relation("CreatedContent")
   analytics AnalyticsSnapshot[] @relation("UserAnalytics")
   auditLogs AuditLog[]
+  generations GenerationJob[]
 }
 
 model Session {
@@ -59,9 +61,54 @@ model Workspace {
   connections SocialConnection[]
   analytics AnalyticsSnapshot[]
   recommendations Recommendation[]
+  generations GenerationJob[]
   subscription Subscription?
   usageCounters UsageCounter[]
+  generations GenerationJob[]
+  characters UGCCharacter[]
   auditLogs AuditLog[]
+}
+
+model UGCCharacter {
+  id String @id @default(cuid())
+  workspaceId String
+  name String
+  description String?
+  visualPrompt String?
+  imageUrl String?
+  metadata Json?
+  active Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  generations GenerationJob[]
+  @@index([workspaceId, active])
+}
+
+model GenerationJob {
+  id String @id @default(cuid())
+  workspaceId String
+  createdById String
+  characterId String?
+  contentId String?
+  kind String
+  status GenerationStatus @default(QUEUED)
+  provider String
+  model String
+  prompt String
+  operationName String?
+  outputUrl String?
+  outputMimeType String?
+  error String?
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy User @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  character UGCCharacter? @relation(fields: [characterId], references: [id], onDelete: SetNull)
+  content ContentItem? @relation(fields: [contentId], references: [id], onDelete: SetNull)
+  @@index([workspaceId, status, createdAt])
+  @@index([createdById, createdAt])
 }
 
 model Subscription {
@@ -179,6 +226,7 @@ model ContentItem {
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   createdBy User @relation("CreatedContent", fields: [createdById], references: [id], onDelete: Cascade)
   analytics AnalyticsSnapshot[]
+  generations GenerationJob[]
   @@index([workspaceId, status])
   @@index([workspaceId, createdAt])
 }
