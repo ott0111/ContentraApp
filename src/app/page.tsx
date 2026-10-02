@@ -1,3 +1,5 @@
+import ContentraIcon from "../../Assets/Contentra_Logo_FINAL-removebg-preview.png";
+import ContentraLogo from "../../Assets/Contentra_Logo_FINAL.png";
 "use client";
 
 import Image from "next/image";
@@ -22,7 +24,7 @@ export default function LandingPage() {
       <nav className="fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6">
         <div className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-zinc-200/80 bg-white/85 px-3 py-2 shadow-lg shadow-zinc-900/5 backdrop-blur-xl">
           <Link href="/" className="flex items-center gap-2.5 rounded-full px-2 py-1.5">
-            <Image src="/assets/Contentra_Logo_FINAL-removebg-preview.png" alt="Contentra" width={38} height={38} className="size-9 object-contain" />
+            <Image src={ContentraIcon.src} alt="Contentra" width={38} height={38} className="size-9 object-contain" />
             <span className="text-sm font-semibold tracking-tight">Contentra</span>
           </Link>
           <div className="hidden items-center gap-7 text-sm text-zinc-500 md:flex">
@@ -62,7 +64,7 @@ export default function LandingPage() {
             <div className="overflow-hidden rounded-[25px] bg-[#f7f7f5]">
               <div className="flex items-center justify-between border-b border-zinc-200 bg-white px-5 py-3.5">
                 <div className="flex items-center gap-2.5">
-                  <Image src="/assets/Contentra_Logo_FINAL-removebg-preview.png" alt="" width={30} height={30} className="size-7 object-contain" />
+                  <Image src={ContentraIcon.src} alt="" width={30} height={30} className="size-7 object-contain" />
                   <span className="text-xs font-semibold">Contentra</span>
                 </div>
                 <div className="hidden items-center gap-1 rounded-full bg-zinc-100 p-1 sm:flex">
@@ -113,7 +115,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="border-t border-zinc-100 px-6 py-9"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-5 text-sm text-zinc-500 sm:flex-row"><Link href="/" className="flex items-center gap-2 font-semibold text-zinc-950"><Image src="/assets/Contentra_Logo_FINAL-removebg-preview.png" alt="" width={28} height={28} className="size-7 object-contain" />Contentra</Link><div className="flex gap-5"><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/contact">Contact</Link></div></div></footer>
+      <footer className="border-t border-zinc-100 px-6 py-9"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-5 text-sm text-zinc-500 sm:flex-row"><Link href="/" className="flex items-center gap-2 font-semibold text-zinc-950"><Image src={ContentraIcon.src} alt="" width={28} height={28} className="size-7 object-contain" />Contentra</Link><div className="flex gap-5"><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/contact">Contact</Link></div></div></footer>
     </main>
   );
 }
