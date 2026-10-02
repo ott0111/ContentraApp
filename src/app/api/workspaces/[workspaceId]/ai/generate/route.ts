@@ -1,7 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { requireMembership } from "@/lib/access";
 import { db } from "@/lib/db";
-import { generateText } from "@/lib/ai";
+import { generateWorkspaceAI } from "@/server/ai/service";
 import { error, handleError, ok } from "@/lib/http";
 import { z } from "zod";
 
@@ -32,7 +32,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
       dna ? `Content DNA: ${JSON.stringify(dna)}` : "Content DNA: not configured"
     ].join("\n\n");
 
-    const result = await generateText({
+    const result = await generateWorkspaceAI({
+      workspaceId,
       system,
       prompt: `Task: ${input.task}\nUser request: ${input.prompt}`,
       temperature: input.temperature
