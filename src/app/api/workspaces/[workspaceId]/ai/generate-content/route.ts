@@ -6,6 +6,8 @@ import { error, handleError, ok } from "@/lib/http";
 import { requireEntitlement } from "@/server/access/require-entitlement";
 import { parseJsonObject } from "@/lib/json";
 import { z } from "zod";
+import { getIdempotencyState, storeIdempotencyResult } from "@/server/security/idempotency";
+import { checkDatabaseRateLimit } from "@/server/security/rate-limit";
 import { requireEntitlement } from "@/server/access/require-entitlement";
 
 const schema = z.object({
@@ -29,7 +31,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
     const { workspaceId } = await params;
     await requireMembership(user.id, workspaceId, "MEMBER");
     await requireEntitlement(workspaceId, "ai_generation");
-    const input = schema.parse(await request.json());
+    const body = await request.json();
+    const input = schema.parse(body);
+    const idemKey = request.headers.get("idempotency-key");
+    if (!idemKey) return error("Idempotency-Key header is required for generation requests", 400);
+    await checkDatabaseRateLimit({ key: `content-generation:${user.id}`, limit: 30, windowMs: 60_000 });
+    const idem = await getIdempotencyState({ key: idemKey, workspaceId, userId: user.id, body });
+    if (idem.existing) return ok(idem.existing.response, { status: idem.existing.status });
 
     const [brain, dna] = await Promise.all([
       db.brandBrain.findUnique({ where: { workspaceId } }),
@@ -77,7 +85,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
       });
     }
 
-    return ok({ content: parsed.data, contentItem: saved, model: result.model, usage: result.usage });
+    const response = { content: parsed.data, contentItem: saved, model: result.model, usage: result.usage };
+    await storeIdempotencyResult({ key: idemKey, workspaceId, userId: user.id, requestHash: idem.requestHash, status: 200, response });
+    return ok(response);
   } catch (err) {
     if (err instanceof Error && err.name === "AuthError") return error(err.message, 401);
     if (err instanceof Error && err.message === "AI provider is not configured") return error("AI provider is not configured. Add GEMINI_API_KEY.", 503);
