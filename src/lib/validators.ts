@@ -12,6 +12,8 @@ export const loginSchema = z.object({
   password: z.string().min(1).max(128)
 });
 
+const jsonObject = z.record(z.string(), z.any()).nullable().optional();
+
 export const brandBrainSchema = z.object({
   businessName: z.string().max(150).nullable().optional(),
   niche: z.string().max(200).nullable().optional(),
@@ -23,7 +25,7 @@ export const brandBrainSchema = z.object({
   competitors: z.array(z.string().max(200)).max(20).optional(),
   contentPillars: z.array(z.string().max(200)).max(20).optional(),
   websiteUrl: z.string().url().max(500).nullable().optional(),
-  context: z.record(z.string(), z.unknown()).nullable().optional()
+  context: jsonObject
 });
 
 export const contentCreateSchema = z.object({
@@ -35,7 +37,7 @@ export const contentCreateSchema = z.object({
   hook: z.string().max(2000).nullable().optional(),
   caption: z.string().max(10000).nullable().optional(),
   mediaUrl: z.string().url().max(2000).nullable().optional(),
-  metadata: z.record(z.string(), z.unknown()).nullable().optional(),
+  metadata: jsonObject,
   scheduledAt: z.coerce.date().nullable().optional(),
   publishedAt: z.coerce.date().nullable().optional()
 });
