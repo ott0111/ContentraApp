@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { requireEntitlement } from "@/server/access/require-entitlement";
 import { auditLog } from "@/server/security/audit";
 import { assertPlanLimit, consumePlanUsage } from "@/server/usage/limits";
 
@@ -26,6 +27,7 @@ export async function createConnection(input: {
   metadata?: Record<string, unknown>;
   userId: string;
 }) {
+  await requireEntitlement(input.workspaceId, "social_connections");
   await assertPlanLimit(input.workspaceId, "socialConnections");
   const connection = await db.socialConnection.upsert({
     where: {
