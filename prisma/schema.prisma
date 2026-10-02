@@ -61,7 +61,6 @@ model Workspace {
   connections SocialConnection[]
   analytics AnalyticsSnapshot[]
   recommendations Recommendation[]
-  generations GenerationJob[]
   subscription Subscription?
   usageCounters UsageCounter[]
   generations GenerationJob[]
