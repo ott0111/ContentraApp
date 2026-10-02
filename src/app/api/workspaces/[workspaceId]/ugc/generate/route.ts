@@ -5,6 +5,7 @@ import { createUGCJob } from "@/server/ugc/service";
 import { z } from "zod";
 import { getIdempotencyState, storeIdempotencyResult } from "@/server/security/idempotency";
 import { checkDatabaseRateLimit } from "@/server/security/rate-limit";
+import { requireEntitlement } from "@/server/access/require-entitlement";
 
 const schema = z.object({
   prompt: z.string().trim().min(1).max(10000),
@@ -17,6 +18,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
     const user = await requireUser();
     const { workspaceId } = await params;
     await requireMembership(user.id, workspaceId, "MEMBER");
+    await requireEntitlement(workspaceId, "ai_ugc");
     const body = await request.json();
     const input = schema.parse(body);
     const idemKey = request.headers.get("idempotency-key");
