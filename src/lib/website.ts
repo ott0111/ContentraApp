@@ -126,7 +126,7 @@ export async function fetchWebsite(inputUrl: string) {
     }
 
     const html = new TextDecoder().decode(bytes);
-    const title = html.match(/<title[^>]*>([\\s\\S]*?)<\\/title>/i)?.[1]
+    const title = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]
       ?.replace(/<[^>]+>/g, "")
       .trim() || null;
 
