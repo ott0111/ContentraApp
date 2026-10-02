@@ -4,11 +4,12 @@ import Link from "next/link";
 import { useState } from "react";
 
 const nav = [
-  ["Overview", "⌂"],
-  ["Create", "＋"],
-  ["Creatos", "◈"],
-  ["Library", "▣"],
-  ["Analytics", "↗"],
+  ["Overview", "/app", "⌂"],
+  ["Create", "/app/create", "＋"],
+  ["Creatos", "/app/creatos", "◈"],
+  ["Library", "/app/library", "▣"],
+  ["Analytics", "/app/analytics", "↗"],
+  ["Campaigns", "/app/campaigns", "◇"],
 ];
 
 const ideas = [
@@ -30,10 +31,10 @@ export default function AppDashboard() {
           </Link>
 
           <div className="mt-8 space-y-1">
-            {nav.map(([label, icon]) => (
-              <button
+            {nav.map(([label, href, icon]) => (
+              <Link
+                href={href}
                 key={label}
-                onClick={() => setActive(label)}
                 className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${active === label ? "bg-zinc-100 text-zinc-950" : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"}`}
               >
                 <span className="grid size-7 place-items-center rounded-lg bg-zinc-100 text-xs">{icon}</span>
