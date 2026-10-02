@@ -34,9 +34,6 @@ model User {
   analytics AnalyticsSnapshot[] @relation("UserAnalytics")
   auditLogs AuditLog[]
   generations GenerationJob[]
-  backgroundJobs BackgroundJob[]
-  idempotencyKeys IdempotencyKey[]
-  webhookEvents WebhookEvent[]
 }
 
 model Session {
@@ -70,6 +67,9 @@ model Workspace {
   usageCounters UsageCounter[]
   generations GenerationJob[]
   characters UGCCharacter[]
+  backgroundJobs BackgroundJob[]
+  idempotencyKeys IdempotencyKey[]
+  webhookEvents WebhookEvent[]
   auditLogs AuditLog[]
 }
 
