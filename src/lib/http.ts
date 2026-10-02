@@ -26,6 +26,12 @@ export function handleError(err: unknown) {
       requiredPlan: err.requiredPlan
     });
   }
+  if (err instanceof Error && err.message === "RATE_LIMIT_EXCEEDED") {
+    return error("Too many requests", 429, { code: "RATE_LIMIT_EXCEEDED" });
+  }
+  if (err instanceof Error && err.message === "IDEMPOTENCY_KEY_REUSED") {
+    return error("Idempotency key was already used for a different request", 409, { code: "IDEMPOTENCY_KEY_REUSED" });
+  }
   if (err instanceof Error && err.message.startsWith("PLAN_LIMIT_EXCEEDED:")) {
     const [, metric, limit] = err.message.split(":");
     return error("Plan usage limit reached", 429, {
