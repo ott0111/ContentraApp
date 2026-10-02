@@ -1,3 +1,4 @@
+import { requireEntitlement } from "@/server/access/require-entitlement";
 import { assertPlanLimit, consumePlanUsage } from "@/server/usage/limits";
 import { createUGCBrief, startVeoGeneration } from "@/lib/ugc";
 
@@ -7,6 +8,7 @@ export async function startWorkspaceUGC(input: {
   aspectRatio?: "9:16" | "16:9";
   characterImageUrl?: string;
 }) {
+  await requireEntitlement(input.workspaceId, "ai_ugc");
   await assertPlanLimit(input.workspaceId, "ugcVideos");
   const brief = await createUGCBrief(input.workspaceId, input.prompt);
   const operation = await startVeoGeneration({
