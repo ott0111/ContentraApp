@@ -29,7 +29,9 @@
     "@types/react-dom": "^19.2.0",
     "prisma": "^6.17.1",
     "typescript": "^5.9.0",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "tailwindcss": "^4.1.14",
+    "@tailwindcss/postcss": "^4.1.14"
   },
   "engines": {
     "node": ">=20.9.0"
