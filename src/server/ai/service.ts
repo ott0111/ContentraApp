@@ -1,4 +1,5 @@
 import { generateText } from "@/lib/ai";
+import { requireEntitlement } from "@/server/access/require-entitlement";
 import { assertPlanLimit, consumePlanUsage } from "@/server/usage/limits";
 
 export async function generateWorkspaceAI(input: {
@@ -8,6 +9,7 @@ export async function generateWorkspaceAI(input: {
   temperature?: number;
   maxOutputTokens?: number;
 }) {
+  await requireEntitlement(input.workspaceId, "ai_generation");
   await assertPlanLimit(input.workspaceId, "aiGenerations");
   const result = await generateText({
     system: input.system,
