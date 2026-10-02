@@ -134,16 +134,16 @@ model BackgroundJob {
 
 model IdempotencyKey {
   id String @id @default(cuid())
-  workspaceId String?
-  userId String?
+  workspaceId String
+  userId String
   key String
   requestHash String
   status Int @default(202)
   response Json?
   createdAt DateTime @default(now())
   expiresAt DateTime
-  workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@unique([workspaceId, key])
   @@index([expiresAt])
 }
