@@ -16,7 +16,7 @@ const schema = z.object({
   followers: z.number().int().min(0).default(0),
   reach: z.number().int().min(0).default(0),
   engagementRate: z.number().min(0).default(0),
-  metadata: z.record(z.string(), z.unknown()).nullable().optional()
+  metadata: z.record(z.string(), z.any()).nullable().optional()
 });
 
 export async function GET(request: Request, { params }: { params: Promise<{ workspaceId: string }> }) {
@@ -47,18 +47,26 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
     const date = new Date(input.date);
     date.setHours(0, 0, 0, 0);
 
-    const row = await db.analyticsSnapshot.upsert({
+    const existing = await db.analyticsSnapshot.findFirst({
       where: {
-        workspaceId_platform_date_contentId: {
-          workspaceId,
-          platform: input.platform,
-          date,
-          contentId: input.contentId ?? null
-        }
-      },
-      create: { ...input, workspaceId, date, userId: user.id },
-      update: { ...input, date }
+        workspaceId,
+        platform: input.platform,
+        date,
+        contentId: input.contentId ?? null
+      }
     });
+
+    const data = {
+      ...input,
+      workspaceId,
+      date,
+      contentId: input.contentId ?? null,
+      userId: user.id
+    };
+
+    const row = existing
+      ? await db.analyticsSnapshot.update({ where: { id: existing.id }, data })
+      : await db.analyticsSnapshot.create({ data });
 
     return created(row);
   } catch (err) {
