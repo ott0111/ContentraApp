@@ -1,104 +1,119 @@
+"use client";
+
+import Image from "next/image";
 import Link from "next/link";
 
 const features = [
-  { title: "Brand Brain", text: "Connect your business and give Contentra the context it needs to understand your brand." },
-  { title: "Content DNA", text: "Find the formats, hooks, topics, and patterns that actually fit your audience." },
-  { title: "Creatos", text: "Discover content opportunities and turn strong ideas into your next post." },
-  { title: "AI UGC", text: "Build UGC concepts, characters, scripts, and video generations from one workflow." },
+  ["Brand Brain", "Give Contentra the context behind your business, audience, positioning, voice, offers and goals.", "/app/brand-brain"],
+  ["Content DNA", "See the hooks, formats, topics and patterns that are actually working across your content.", "/app/content-dna"],
+  ["Creatos", "Find strong content opportunities, save them, remix them and turn them into your next move.", "/app/creatos"],
+  ["AI UGC", "Go from a concept to a structured UGC brief and production-ready generation workflow.", "/app/ugc"],
+];
+
+const stats = [
+  ["01", "Understand", "Contentra builds a living model of your brand and audience."],
+  ["02", "Create", "Turn context into hooks, scripts, posts, UGC and remixes."],
+  ["03", "Improve", "Use performance signals to decide what to do next."],
 ];
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-white text-zinc-950">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
-        <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
-          <span className="grid size-8 place-items-center rounded-xl bg-orange-500 text-sm font-black text-white">C</span>
-          Contentra
-        </Link>
-        <div className="hidden items-center gap-8 text-sm text-zinc-600 md:flex">
-          <a href="#features" className="transition hover:text-zinc-950">Features</a>
-          <a href="#how-it-works" className="transition hover:text-zinc-950">How it works</a>
-          <a href="#pricing" className="transition hover:text-zinc-950">Pricing</a>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link href="/login" className="rounded-full px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100">Log in</Link>
-          <Link href="/register" className="rounded-full bg-zinc-950 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-orange-500">Get started</Link>
+    <main className="min-h-screen overflow-hidden bg-white text-zinc-950">
+      <nav className="fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6">
+        <div className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-zinc-200/80 bg-white/85 px-3 py-2 shadow-lg shadow-zinc-900/5 backdrop-blur-xl">
+          <Link href="/" className="flex items-center gap-2.5 rounded-full px-2 py-1.5">
+            <Image src="/assets/Contentra_Logo_FINAL-removebg-preview.png" alt="Contentra" width={38} height={38} className="size-9 object-contain" />
+            <span className="text-sm font-semibold tracking-tight">Contentra</span>
+          </Link>
+          <div className="hidden items-center gap-7 text-sm text-zinc-500 md:flex">
+            <a href="#product" className="hover:text-zinc-950">Product</a>
+            <a href="#workflow" className="hover:text-zinc-950">How it works</a>
+            <a href="#features" className="hover:text-zinc-950">Features</a>
+            <a href="#pricing" className="hover:text-zinc-950">Pricing</a>
+          </div>
+          <div className="flex items-center gap-1">
+            <Link href="/login" className="hidden rounded-full px-4 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100 sm:inline-flex">Log in</Link>
+            <Link href="/register" className="rounded-full bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-500">Get started</Link>
+          </div>
         </div>
       </nav>
 
-      <section className="relative overflow-hidden border-b border-zinc-100">
-        <div className="pointer-events-none absolute left-1/2 top-0 -z-0 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-orange-100/70 blur-3xl" />
-        <div className="relative mx-auto max-w-7xl px-6 pb-24 pt-20 text-center md:pt-28">
-          <div className="mx-auto mb-7 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-xs font-medium text-orange-700">
+      <section className="relative px-4 pb-20 pt-36 sm:px-6 sm:pt-44">
+        <div className="pointer-events-none absolute left-1/2 top-0 -z-0 h-[720px] w-[1100px] -translate-x-1/2 rounded-full bg-orange-100/80 blur-3xl" />
+        <div className="pointer-events-none absolute left-1/2 top-44 -z-0 h-[380px] w-[700px] -translate-x-1/2 rounded-full bg-orange-200/30 blur-3xl" />
+        <div className="relative mx-auto max-w-7xl text-center">
+          <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white/80 px-4 py-2 text-xs font-semibold text-orange-700 shadow-sm backdrop-blur">
             <span className="size-1.5 rounded-full bg-orange-500" />
             The operating system for creators
           </div>
-          <h1 className="mx-auto max-w-5xl text-5xl font-semibold tracking-[-0.055em] md:text-7xl">
-            Stop guessing what to post.
-            <span className="block text-orange-500">Know what to do next.</span>
+          <h1 className="mx-auto mt-7 max-w-6xl text-5xl font-semibold tracking-[-0.065em] sm:text-6xl md:text-8xl">
+            Turn ideas into content.
+            <span className="block text-orange-500">Then know what to do next.</span>
           </h1>
-          <p className="mx-auto mt-7 max-w-2xl text-base leading-7 text-zinc-600 md:text-lg">
-            Contentra connects your business, content, audience, and AI into one growth system built for creators, businesses, and agencies.
+          <p className="mx-auto mt-7 max-w-2xl text-base leading-7 text-zinc-600 sm:text-lg">
+            Contentra connects your business, content, audience, analytics and AI into one growth system for creators, businesses and agencies.
           </p>
           <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link href="/register" className="rounded-full bg-orange-500 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:bg-orange-600">
-              Start for free
-            </Link>
-            <a href="#features" className="rounded-full border border-zinc-200 bg-white px-7 py-3.5 text-sm font-semibold text-zinc-800 transition hover:border-zinc-300">
-              Explore Contentra
-            </a>
+            <Link href="/register" className="rounded-full bg-orange-500 px-7 py-3.5 text-sm font-semibold text-white shadow-xl shadow-orange-500/20 transition hover:-translate-y-0.5 hover:bg-orange-600">Start for free</Link>
+            <a href="#product" className="rounded-full border border-zinc-200 bg-white px-7 py-3.5 text-sm font-semibold text-zinc-800 shadow-sm transition hover:-translate-y-0.5 hover:border-zinc-300">See the product</a>
           </div>
 
-          <div className="mx-auto mt-20 max-w-6xl rounded-[28px] border border-zinc-200 bg-zinc-950 p-2 shadow-2xl shadow-zinc-900/10">
-            <div className="overflow-hidden rounded-[22px] bg-zinc-50">
-              <div className="flex items-center justify-between border-b border-zinc-200 bg-white px-5 py-4">
-                <div className="flex items-center gap-2 text-sm font-semibold"><span className="size-7 rounded-lg bg-orange-500" /> Contentra</div>
-                <div className="hidden gap-2 sm:flex"><span className="rounded-full bg-zinc-100 px-3 py-1 text-xs">Overview</span><span className="rounded-full px-3 py-1 text-xs text-zinc-500">Content</span><span className="rounded-full px-3 py-1 text-xs text-zinc-500">Analytics</span></div>
+          <div id="product" className="mx-auto mt-20 max-w-6xl overflow-hidden rounded-[32px] border border-zinc-200 bg-zinc-950 p-2 shadow-2xl shadow-zinc-900/15">
+            <div className="overflow-hidden rounded-[25px] bg-[#f7f7f5]">
+              <div className="flex items-center justify-between border-b border-zinc-200 bg-white px-5 py-3.5">
+                <div className="flex items-center gap-2.5">
+                  <Image src="/assets/Contentra_Logo_FINAL-removebg-preview.png" alt="" width={30} height={30} className="size-7 object-contain" />
+                  <span className="text-xs font-semibold">Contentra</span>
+                </div>
+                <div className="hidden items-center gap-1 rounded-full bg-zinc-100 p-1 sm:flex">
+                  {["Overview", "Create", "Creatos", "Analytics"].map((item, i) => <span key={item} className={`rounded-full px-3 py-1.5 text-[10px] font-semibold ${i === 0 ? "bg-white text-zinc-950 shadow-sm" : "text-zinc-400"}`}>{item}</span>)}
+                </div>
+                <span className="size-2 rounded-full bg-orange-500" />
               </div>
-              <div className="grid min-h-[390px] gap-4 p-5 md:grid-cols-[1.5fr_1fr]">
-                <div className="rounded-2xl border border-zinc-200 bg-white p-6 text-left">
-                  <p className="text-xs font-medium text-zinc-500">NEXT BEST ACTION</p>
-                  <h3 className="mt-3 text-2xl font-semibold tracking-tight">Turn your strongest topic into a short-form series.</h3>
-                  <p className="mt-3 max-w-lg text-sm leading-6 text-zinc-500">Contentra found a repeatable pattern across your content and turned it into a concrete action.</p>
-                  <div className="mt-8 rounded-2xl bg-orange-50 p-4">
-                    <div className="text-sm font-semibold text-orange-800">Content DNA signal</div>
-                    <div className="mt-2 h-2 rounded-full bg-orange-100"><div className="h-2 w-4/5 rounded-full bg-orange-500" /></div>
-                    <div className="mt-2 text-xs text-orange-700">High confidence · 82%</div>
+              <div className="grid gap-4 p-4 text-left sm:p-6 lg:grid-cols-[1.45fr_.8fr]">
+                <div className="rounded-[24px] border border-zinc-200 bg-white p-5 sm:p-7">
+                  <div className="flex items-center justify-between"><div><p className="text-[10px] font-semibold uppercase tracking-[.18em] text-zinc-400">Next best action</p><p className="mt-1 text-xs text-zinc-400">Based on your latest signals</p></div><span className="rounded-full bg-orange-50 px-2.5 py-1 text-[10px] font-semibold text-orange-700">82% confidence</span></div>
+                  <h2 className="mt-8 max-w-xl text-2xl font-semibold tracking-tight sm:text-3xl">Turn your strongest topic into a short-form series.</h2>
+                  <p className="mt-3 max-w-xl text-sm leading-6 text-zinc-500">Your Content DNA found a repeatable pattern around creator growth and direct hooks. Build on the signal instead of starting from scratch.</p>
+                  <div className="mt-7 grid gap-3 sm:grid-cols-3">
+                    {[["Hook", "Direct statement", "91%"], ["Format", "Talking head", "86%"], ["Topic", "Creator growth", "88%"]].map(([a,b,c]) => <div key={a} className="rounded-2xl bg-zinc-50 p-3"><p className="text-[9px] font-semibold uppercase tracking-wide text-zinc-400">{a}</p><p className="mt-1 text-xs font-semibold">{b}</p><p className="mt-1 text-[10px] text-orange-600">{c} fit</p></div>)}
                   </div>
                 </div>
                 <div className="grid gap-4">
-                  <div className="rounded-2xl border border-zinc-200 bg-white p-5 text-left"><div className="text-xs text-zinc-500">CONTENT READY</div><div className="mt-2 text-3xl font-semibold">24</div><div className="mt-1 text-sm text-zinc-500">ideas, hooks & drafts</div></div>
-                  <div className="rounded-2xl border border-zinc-200 bg-white p-5 text-left"><div className="text-xs text-zinc-500">AUDIENCE SIGNAL</div><div className="mt-2 text-3xl font-semibold">+38%</div><div className="mt-1 text-sm text-zinc-500">engagement opportunity</div></div>
+                  <div className="rounded-[24px] bg-orange-500 p-5 text-white"><p className="text-[10px] font-semibold uppercase tracking-[.18em] text-orange-100">Content ready</p><p className="mt-2 text-4xl font-semibold">24</p><p className="mt-1 text-xs text-orange-100">ideas, hooks & drafts</p></div>
+                  <div className="rounded-[24px] border border-zinc-200 bg-white p-5"><p className="text-[10px] font-semibold uppercase tracking-[.18em] text-zinc-400">Audience signal</p><p className="mt-2 text-4xl font-semibold">+38%</p><p className="mt-1 text-xs text-zinc-500">engagement opportunity</p></div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      <section id="features" className="mx-auto max-w-7xl px-6 py-24">
-        <div className="max-w-2xl"><p className="text-sm font-semibold text-orange-500">ONE SYSTEM</p><h2 className="mt-3 text-4xl font-semibold tracking-[-0.04em] md:text-5xl">Everything your growth workflow needs.</h2></div>
-        <div className="mt-12 grid gap-4 md:grid-cols-2">
-          {features.map((feature) => <div key={feature.title} className="rounded-3xl border border-zinc-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"><div className="mb-12 size-10 rounded-xl bg-orange-100" /><h3 className="text-xl font-semibold">{feature.title}</h3><p className="mt-3 max-w-md text-sm leading-6 text-zinc-500">{feature.text}</p></div>)}
-        </div>
-      </section>
-
-      <section id="how-it-works" className="border-y border-zinc-100 bg-zinc-50">
-        <div className="mx-auto max-w-7xl px-6 py-24">
-          <div className="grid gap-12 md:grid-cols-3">
-            {[["01","Connect","Give Contentra your website, brand, goals, and platforms."],["02","Understand","Brand Brain and Content DNA turn your information into a living growth model."],["03","Create","Generate content, UGC, opportunities, and next actions from that context."]].map(([num,title,text]) => <div key={num}><span className="text-sm font-semibold text-orange-500">{num}</span><h3 className="mt-5 text-2xl font-semibold">{title}</h3><p className="mt-3 text-sm leading-6 text-zinc-500">{text}</p></div>)}
+          <div className="mx-auto mt-12 max-w-4xl overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50">
+            <Image src="/assets/Turn Ideas Into Content, Faster.png" alt="Turn Ideas Into Content, Faster" width={1600} height={500} className="h-auto w-full object-cover" priority />
           </div>
         </div>
       </section>
 
-      <section id="pricing" className="mx-auto max-w-7xl px-6 py-24 text-center">
-        <p className="text-sm font-semibold text-orange-500">START FREE</p>
-        <h2 className="mt-3 text-4xl font-semibold tracking-[-0.04em]">Your growth system starts here.</h2>
-        <p className="mx-auto mt-4 max-w-xl text-zinc-500">Start with the free plan. Upgrade when Contentra becomes part of your workflow.</p>
-        <Link href="/register" className="mt-8 inline-flex rounded-full bg-orange-500 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 hover:bg-orange-600">Create your workspace</Link>
+      <section id="workflow" className="border-y border-zinc-100 bg-[#fafaf9] px-6">
+        <div className="mx-auto max-w-7xl py-24 sm:py-28">
+          <div className="max-w-2xl"><p className="text-xs font-bold uppercase tracking-[.18em] text-orange-500">One workflow</p><h2 className="mt-4 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">Less guessing. More momentum.</h2><p className="mt-5 text-base leading-7 text-zinc-500">Contentra turns your information and performance signals into a system you can actually use every day.</p></div>
+          <div className="mt-16 grid gap-10 md:grid-cols-3">{stats.map(([num,title,text]) => <div key={num} className="border-t border-zinc-300 pt-5"><span className="text-xs font-bold text-orange-500">{num}</span><h3 className="mt-8 text-2xl font-semibold">{title}</h3><p className="mt-3 text-sm leading-6 text-zinc-500">{text}</p></div>)}</div>
+        </div>
       </section>
 
-      <footer className="border-t border-zinc-100 px-6 py-8"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 text-sm text-zinc-500 sm:flex-row"><span>© {new Date().getFullYear()} Contentra</span><div className="flex gap-5"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="mailto:hello@contentra.app">Contact</a></div></div></footer>
+      <section id="features" className="px-6 py-24 sm:py-32">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end"><div className="max-w-2xl"><p className="text-xs font-bold uppercase tracking-[.18em] text-orange-500">The system</p><h2 className="mt-4 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">Everything connected.</h2></div><p className="max-w-md text-sm leading-6 text-zinc-500">Every feature feeds the next one, so your content gets smarter as your workspace gets more complete.</p></div>
+          <div className="mt-14 grid gap-4 md:grid-cols-2">{features.map(([title,text,href],i) => <Link href={href} key={title} className="group rounded-[28px] border border-zinc-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl sm:p-8"><div className="flex items-start justify-between"><span className="grid size-11 place-items-center rounded-2xl bg-orange-50 text-sm font-bold text-orange-600">0{i+1}</span><span className="text-zinc-300 transition group-hover:translate-x-1 group-hover:text-orange-500">↗</span></div><h3 className="mt-16 text-2xl font-semibold">{title}</h3><p className="mt-3 max-w-lg text-sm leading-6 text-zinc-500">{text}</p></Link>)}</div>
+        </div>
+      </section>
+
+      <section id="pricing" className="px-6 pb-28">
+        <div className="mx-auto max-w-7xl overflow-hidden rounded-[32px] bg-zinc-950 p-8 text-white sm:p-12">
+          <div className="flex flex-col justify-between gap-10 md:flex-row md:items-end"><div className="max-w-2xl"><p className="text-xs font-bold uppercase tracking-[.18em] text-orange-400">Start free</p><h2 className="mt-4 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">Your next piece of content starts with your next decision.</h2><p className="mt-5 text-sm leading-6 text-zinc-400">Start with Contentra Free. Upgrade when the system becomes part of your workflow.</p></div><Link href="/register" className="shrink-0 rounded-full bg-orange-500 px-7 py-3.5 text-sm font-semibold text-white hover:bg-orange-600">Create your workspace</Link></div>
+        </div>
+      </section>
+
+      <footer className="border-t border-zinc-100 px-6 py-9"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-5 text-sm text-zinc-500 sm:flex-row"><Link href="/" className="flex items-center gap-2 font-semibold text-zinc-950"><Image src="/assets/Contentra_Logo_FINAL-removebg-preview.png" alt="" width={28} height={28} className="size-7 object-contain" />Contentra</Link><div className="flex gap-5"><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/contact">Contact</Link></div></div></footer>
     </main>
   );
 }
