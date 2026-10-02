@@ -1,49 +1,13 @@
 "use client";
-
-import Link from "next/link";
-import { useState } from "react";
-
-const sections = [
-  ["Business", "What you sell, who you serve, and what makes the business different."],
-  ["Audience", "The people Contentra should speak to, including their problems and motivations."],
-  ["Positioning", "The angle, promise, and category you want your brand to own."],
-  ["Voice", "How your brand sounds across posts, scripts, captions, and campaigns."],
-  ["Goals", "The outcomes Contentra should optimize your content around."],
-  ["Offers", "Products, services, launches, and calls-to-action you want content to support."]
-];
-
-export default function BrandBrainPage() {
-  const [saved, setSaved] = useState(false);
-  return (
-    <main className="min-h-screen bg-[#f7f7f5] text-zinc-950">
-      <div className="mx-auto flex min-h-screen max-w-[1500px]">
-        <AppSidebar active="Brand Brain" />
-        <section className="min-w-0 flex-1">
-          <header className="sticky top-0 z-30 border-b border-zinc-200/80 bg-[#f7f7f5]/90 px-4 py-3 backdrop-blur-xl sm:px-6">
-            <div className="mx-auto flex max-w-6xl items-center justify-between">
-              <div><p className="text-sm font-semibold">Brand Brain</p><p className="hidden text-xs text-zinc-500 sm:block">The context layer behind every Contentra decision.</p></div>
-              <button onClick={() => setSaved(true)} className="rounded-full bg-orange-500 px-4 py-2 text-xs font-semibold text-white hover:bg-orange-600">{saved ? "Saved" : "Save changes"}</button>
-            </div>
-          </header>
-          <div className="mx-auto max-w-6xl px-4 py-7 sm:px-6">
-            <div className="overflow-hidden rounded-[28px] border border-zinc-200 bg-zinc-950 p-6 text-white shadow-xl sm:p-8">
-              <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
-                <div className="max-w-2xl"><span className="rounded-full bg-orange-500/15 px-3 py-1 text-xs font-semibold text-orange-300">YOUR BRAND CONTEXT</span><h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">Teach Contentra how your brand thinks.</h1><p className="mt-3 text-sm leading-6 text-zinc-400">Brand Brain gives every generation, recommendation, and opportunity the context it needs to sound like you.</p></div>
-                <div className="w-full max-w-xs rounded-2xl border border-white/10 bg-white/5 p-4"><div className="flex justify-between text-xs"><span className="text-zinc-400">Completeness</span><span className="font-semibold text-orange-300">82%</span></div><div className="mt-3 h-2 rounded-full bg-white/10"><div className="h-2 w-[82%] rounded-full bg-orange-500" /></div><p className="mt-3 text-[11px] text-zinc-500">Add your offers and competitors to improve recommendations.</p></div>
-              </div>
-            </div>
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
-              {sections.map(([title, text], index) => <div key={title} className="rounded-[24px] border border-zinc-200 bg-white p-5 shadow-sm"><div className="flex items-center justify-between"><div className="flex items-center gap-3"><span className="grid size-9 place-items-center rounded-xl bg-orange-50 text-xs font-bold text-orange-600">{String(index + 1).padStart(2,"0")}</span><h2 className="text-sm font-semibold">{title}</h2></div><span className="size-2 rounded-full bg-emerald-500" /></div><p className="mt-4 text-xs leading-5 text-zinc-500">{text}</p><div className="mt-4 rounded-2xl bg-zinc-50 p-3 text-xs text-zinc-700">{title === "Voice" ? "Direct · useful · confident" : title === "Audience" ? "Creators, businesses & agencies" : "Add your workspace context here..."}</div></div>)}
-            </div>
-            <div className="mt-6 rounded-[24px] border border-orange-200 bg-orange-50 p-5"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"><div><p className="text-sm font-semibold text-orange-950">Website intelligence</p><p className="mt-1 text-xs text-orange-900/60">Paste your website and Contentra can extract useful brand context for you.</p></div><Link href="/app/settings" className="rounded-full bg-orange-500 px-4 py-2 text-xs font-semibold text-white hover:bg-orange-600">Configure source</Link></div></div>
-          </div>
-        </section>
-      </div>
-    </main>
-  );
-}
-
-function AppSidebar({ active }: { active: string }) {
-  const items = [["Overview","/app"],["Create","/app/create"],["Creatos","/app/creatos"],["Library","/app/library"],["Analytics","/app/analytics"],["Content DNA","/app/content-dna"],["Brand Brain","/app/brand-brain"],["Campaigns","/app/campaigns"]];
-  return <aside className="hidden w-64 shrink-0 border-r border-zinc-200 bg-white p-4 lg:flex lg:flex-col"><Link href="/" className="flex items-center gap-2 px-2 py-3 font-semibold tracking-tight"><span className="grid size-8 place-items-center rounded-xl bg-orange-500 text-sm font-black text-white">C</span>Contentra</Link><nav className="mt-7 space-y-1">{items.map(([label,href]) => <Link key={label} href={href} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium ${active === label ? "bg-orange-50 text-orange-700" : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-950"}`}><span className="grid size-7 place-items-center rounded-lg bg-zinc-100 text-[10px]">{label.slice(0,1)}</span>{label}</Link>)}</nav><div className="mt-auto border-t border-zinc-100 pt-4"><Link href="/app/settings" className="block rounded-xl bg-zinc-50 p-3 text-xs text-zinc-500 hover:bg-zinc-100">Workspace settings</Link></div></aside>;
-}
+import { useEffect,useState } from "react";
+import { AppPage } from "@/components/app/app-page";
+import { Card,CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+type Brain={businessName:string|null;niche:string|null;audience:string|null;positioning:string|null;voice:string|null;websiteUrl:string|null;goals:string[];offers:string[];competitors:string[];contentPillars:string[];completeness:number};
+export default function BrandBrain(){const [brain,setBrain]=useState<Brain|null>(null),[saving,setSaving]=useState(false),[scanning,setScanning]=useState(false),[url,setUrl]=useState(""),[message,setMessage]=useState("");
+useEffect(()=>{(async()=>{const me=await fetch("/api/auth/me").then(r=>r.json()),ws=me.data?.workspaces?.[0];if(!ws)return;const r=await fetch(`/api/workspaces/${ws.id}/brand-brain`),j=await r.json();if(r.ok){setBrain(j.data);setUrl(j.data.websiteUrl||"")}})()},[]);
+function field(key:keyof Brain){return <textarea value={String(brain?.[key]??"")} onChange={e=>setBrain(b=>b?{...b,[key]:e.target.value}:b)} className="mt-2 min-h-24 w-full resize-y rounded-2xl border border-zinc-200 bg-zinc-50 p-3 text-sm outline-none focus:border-orange-400"/>}
+async function save(){if(!brain)return;setSaving(true);const me=await fetch("/api/auth/me").then(r=>r.json()),ws=me.data?.workspaces?.[0];const r=await fetch(`/api/workspaces/${ws.id}/brand-brain`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({...brain,websiteUrl:url})});const j=await r.json();if(r.ok){setBrain(j.data);setMessage("Saved")}else setMessage(j.error||"Couldn't save");setSaving(false)}
+async function scan(){if(!brain||!url)return;setScanning(true);setMessage("");const me=await fetch("/api/auth/me").then(r=>r.json()),ws=me.data?.workspaces?.[0];const r=await fetch(`/api/workspaces/${ws.id}/brand-brain/ingest`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({websiteUrl:url})});const j=await r.json();if(r.ok)setBrain(j.data);else setMessage(j.error||"Website scan failed");setScanning(false)}
+if(!brain)return <AppPage><div className="h-[600px] animate-pulse rounded-3xl bg-zinc-100"/></AppPage>;
+return <AppPage><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><span className="rounded-full bg-orange-100 px-3 py-1 text-[10px] font-bold uppercase tracking-[.16em] text-orange-700">Brand Brain</span><h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Teach Contentra your brand.</h1><p className="mt-2 max-w-2xl text-sm text-zinc-500">This context powers generation, recommendations, opportunities, and Content DNA.</p></div><Button onClick={save}>{saving?"Saving...":message==="Saved"?"Saved":"Save changes"}</Button></div><Card className="mt-7 bg-zinc-950 text-white"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><p className="text-xs uppercase tracking-wide text-orange-300">Completeness</p><p className="mt-1 text-4xl font-semibold">{brain.completeness}%</p></div><div className="w-full max-w-md"><div className="h-2 rounded-full bg-white/10"><div className="h-2 rounded-full bg-orange-500" style={{width:`${brain.completeness}%`}}/></div><p className="mt-2 text-xs text-zinc-500">More context gives Contentra stronger outputs.</p></div></div></Card><div className="mt-6 grid gap-5 md:grid-cols-2"><Card><CardHeader title="Business" description="What you sell and what makes you different."/><div className="px-5 pb-5 sm:px-6">{field("businessName")}{field("niche")}</div></Card><Card><CardHeader title="Audience" description="Who Contentra should speak to."/><div className="px-5 pb-5 sm:px-6">{field("audience")}</div></Card><Card><CardHeader title="Positioning" description="The promise and angle your brand should own."/><div className="px-5 pb-5 sm:px-6">{field("positioning")}</div></Card><Card><CardHeader title="Voice" description="How your content should sound."/><div className="px-5 pb-5 sm:px-6">{field("voice")}</div></Card></div><Card className="mt-5"><CardHeader title="Website intelligence" description="Scan your public website and let Contentra extract useful brand context."/><div className="flex flex-col gap-3 px-5 pb-5 sm:flex-row sm:px-6 sm:pb-6"><input value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://yourwebsite.com" className="min-w-0 flex-1 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm outline-none focus:border-orange-400"/><Button onClick={scan} variant="secondary">{scanning?"Scanning...":"Scan website"}</Button></div>{message&&<p className="px-5 pb-5 text-xs text-zinc-500 sm:px-6">{message}</p>}</Card></AppPage>}
