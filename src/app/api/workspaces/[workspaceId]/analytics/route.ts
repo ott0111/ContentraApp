@@ -3,6 +3,7 @@ import { requireMembership } from "@/lib/access";
 import { db } from "@/lib/db";
 import { created, error, handleError, ok } from "@/lib/http";
 import { z } from "zod";
+import { requireEntitlement } from "@/server/access/require-entitlement";
 
 const schema = z.object({
   contentId: z.string().nullable().optional(),
@@ -24,6 +25,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ work
     const user = await requireUser();
     const { workspaceId } = await params;
     await requireMembership(user.id, workspaceId);
+    await requireEntitlement(workspaceId, "analytics_advanced");
     const url = new URL(request.url);
     const days = Math.min(Math.max(Number(url.searchParams.get("days") || 30), 1), 365);
     const since = new Date(Date.now() - days * 86400000);
