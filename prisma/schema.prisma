@@ -13,6 +13,9 @@ enum ContentStatus { DRAFT SCHEDULED PUBLISHED ARCHIVED }
 enum OpportunityStatus { NEW SAVED DISMISSED ACTIONED }
 enum Platform { INSTAGRAM TIKTOK YOUTUBE X LINKEDIN OTHER }
 enum ConnectionStatus { ACTIVE EXPIRED REVOKED ERROR }
+enum Plan { FREE PRO BUSINESS AGENCY }
+enum SubscriptionStatus { TRIALING ACTIVE PAST_DUE CANCELED EXPIRED }
+enum BillingProvider { PADDLE STRIPE MANUAL }
 enum GenerationStatus { QUEUED PROCESSING COMPLETED FAILED }
 
 model User {
@@ -27,7 +30,8 @@ model User {
   memberships Membership[]
   contentItems ContentItem[] @relation("CreatedContent")
   analytics AnalyticsSnapshot[] @relation("UserAnalytics")
-  generations GenerationJob[] @relation("CreatedGenerations")
+  auditLogs AuditLog[]
+  generations GenerationJob[]
 }
 
 model Session {
@@ -45,6 +49,7 @@ model Workspace {
   id String @id @default(cuid())
   name String
   slug String @unique
+  plan Plan @default(FREE)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   memberships Membership[]
@@ -56,8 +61,111 @@ model Workspace {
   connections SocialConnection[]
   analytics AnalyticsSnapshot[]
   recommendations Recommendation[]
+  subscription Subscription?
+  usageCounters UsageCounter[]
   generations GenerationJob[]
   characters UGCCharacter[]
+  auditLogs AuditLog[]
+}
+
+model UGCCharacter {
+  id String @id @default(cuid())
+  workspaceId String
+  name String
+  description String?
+  visualPrompt String?
+  imageUrl String?
+  metadata Json?
+  active Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  generations GenerationJob[]
+  @@index([workspaceId, active])
+}
+
+model GenerationJob {
+  id String @id @default(cuid())
+  workspaceId String
+  createdById String
+  characterId String?
+  contentId String?
+  kind String
+  status GenerationStatus @default(QUEUED)
+  provider String
+  model String
+  prompt String
+  operationName String?
+  outputUrl String?
+  outputMimeType String?
+  error String?
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy User @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  character UGCCharacter? @relation(fields: [characterId], references: [id], onDelete: SetNull)
+  content ContentItem? @relation(fields: [contentId], references: [id], onDelete: SetNull)
+  @@index([workspaceId, status, createdAt])
+  @@index([createdById, createdAt])
+}
+
+model Subscription {
+  id String @id @default(cuid())
+  workspaceId String @unique
+  plan Plan @default(FREE)
+  status SubscriptionStatus @default(TRIALING)
+  provider BillingProvider @default(MANUAL)
+  customerId String?
+  providerSubscriptionId String? @unique
+  currentPeriodStart DateTime?
+  currentPeriodEnd DateTime?
+  cancelAtPeriodEnd Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  @@index([provider, customerId])
+  @@index([status, currentPeriodEnd])
+}
+
+model UsageCounter {
+  id String @id @default(cuid())
+  workspaceId String
+  metric String
+  periodStart DateTime
+  count Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  @@unique([workspaceId, metric, periodStart])
+  @@index([workspaceId, periodStart])
+}
+
+model RateLimitBucket {
+  id String @id @default(cuid())
+  key String
+  windowStart DateTime
+  count Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([key, windowStart])
+  @@index([windowStart])
+}
+
+model AuditLog {
+  id String @id @default(cuid())
+  workspaceId String?
+  userId String?
+  action String
+  resource String?
+  resourceId String?
+  metadata Json?
+  createdAt DateTime @default(now())
+  workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  @@index([workspaceId, createdAt])
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
 }
 
 model Membership {
@@ -224,46 +332,4 @@ model Recommendation {
   updatedAt DateTime @updatedAt
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   @@index([workspaceId, status, priority])
-}
-
-model UGCCharacter {
-  id String @id @default(cuid())
-  workspaceId String
-  name String
-  description String?
-  visualPrompt String
-  imageUrl String?
-  metadata Json?
-  active Boolean @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  generations GenerationJob[]
-  @@index([workspaceId, active])
-}
-
-model GenerationJob {
-  id String @id @default(cuid())
-  workspaceId String
-  createdById String
-  characterId String?
-  contentId String?
-  kind String
-  status GenerationStatus @default(QUEUED)
-  provider String?
-  model String?
-  prompt String
-  operationName String?
-  outputUrl String?
-  outputMimeType String?
-  error String?
-  metadata Json?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  createdBy User @relation("CreatedGenerations", fields: [createdById], references: [id], onDelete: Cascade)
-  character UGCCharacter? @relation(fields: [characterId], references: [id], onDelete: SetNull)
-  content ContentItem? @relation(fields: [contentId], references: [id], onDelete: SetNull)
-  @@index([workspaceId, status, createdAt])
-  @@index([operationName])
 }
