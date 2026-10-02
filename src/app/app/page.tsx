@@ -39,7 +39,7 @@ export default function AppDashboard() {
               >
                 <span className="grid size-7 place-items-center rounded-lg bg-zinc-100 text-xs">{icon}</span>
                 {label}
-              </button>
+              </Link>
             ))}
           </div>
 
