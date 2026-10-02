@@ -1,6 +1,7 @@
+"use client";
+
 import ContentraIcon from "../../Assets/Contentra_Logo_FINAL-removebg-preview.png";
 import ContentraLogo from "../../Assets/Contentra_Logo_FINAL.png";
-"use client";
 
 import Image from "next/image";
 import Link from "next/link";
