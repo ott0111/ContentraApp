@@ -35,6 +35,15 @@ export async function POST(request: Request) {
         data: { userId: user.id, workspaceId: workspace.id, role: "OWNER" }
       });
 
+      await tx.subscription.create({
+        data: {
+          workspaceId: workspace.id,
+          plan: "FREE",
+          status: "ACTIVE",
+          provider: "MANUAL"
+        }
+      });
+
       return { user, workspace };
     });
 
