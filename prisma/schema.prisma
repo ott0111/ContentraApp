@@ -17,6 +17,8 @@ enum Plan { FREE PRO BUSINESS AGENCY }
 enum SubscriptionStatus { TRIALING ACTIVE PAST_DUE CANCELED EXPIRED }
 enum BillingProvider { PADDLE STRIPE MANUAL }
 enum GenerationStatus { QUEUED PROCESSING COMPLETED FAILED }
+enum BackgroundJobStatus { QUEUED PROCESSING COMPLETED FAILED }
+enum WebhookStatus { RECEIVED PROCESSED FAILED }
 
 model User {
   id String @id @default(cuid())
@@ -32,6 +34,9 @@ model User {
   analytics AnalyticsSnapshot[] @relation("UserAnalytics")
   auditLogs AuditLog[]
   generations GenerationJob[]
+  backgroundJobs BackgroundJob[]
+  idempotencyKeys IdempotencyKey[]
+  webhookEvents WebhookEvent[]
 }
 
 model Session {
@@ -108,6 +113,55 @@ model GenerationJob {
   content ContentItem? @relation(fields: [contentId], references: [id], onDelete: SetNull)
   @@index([workspaceId, status, createdAt])
   @@index([createdById, createdAt])
+}
+
+model BackgroundJob {
+  id String @id @default(cuid())
+  workspaceId String?
+  kind String
+  payload Json
+  status BackgroundJobStatus @default(QUEUED)
+  attempts Int @default(0)
+  runAt DateTime @default(now())
+  lockedAt DateTime?
+  lastError String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  @@index([status, runAt])
+  @@index([workspaceId, status])
+}
+
+model IdempotencyKey {
+  id String @id @default(cuid())
+  workspaceId String?
+  userId String?
+  key String
+  requestHash String
+  status Int @default(202)
+  response Json?
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([workspaceId, key])
+  @@index([expiresAt])
+}
+
+model WebhookEvent {
+  id String @id @default(cuid())
+  provider BillingProvider
+  providerEventId String @unique
+  eventType String
+  workspaceId String?
+  status WebhookStatus @default(RECEIVED)
+  payload Json
+  error String?
+  receivedAt DateTime @default(now())
+  processedAt DateTime?
+  workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+  @@index([provider, eventType, receivedAt])
+  @@index([workspaceId, receivedAt])
 }
 
 model Subscription {
