@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function NotFound(){return <div className="grid min-h-[70vh] place-items-center bg-[#f7f7f5] p-6"><div className="text-center"><p className="text-xs font-bold uppercase tracking-[.18em] text-orange-600">404</p><h1 className="mt-3 text-3xl font-semibold">Page not found</h1><p className="mt-2 text-sm text-zinc-500">That Contentra workspace page doesn't exist.</p><Link href="/app" className="mt-6 inline-flex rounded-xl bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white">Back to workspace</Link></div></div>}
