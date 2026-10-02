@@ -1,3 +1,4 @@
+import ContentraIcon from "../../../Assets/Contentra_Logo_FINAL-removebg-preview.png";
 "use client";
 
 import Image from "next/image";
@@ -29,7 +30,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <aside className="app-sidebar fixed inset-y-0 left-0 z-40 hidden w-[272px] border-r border-zinc-200/80 bg-white lg:flex lg:flex-col">
         <div className="flex h-16 items-center border-b border-zinc-100 px-5">
           <Link href="/" className="flex items-center gap-2.5">
-            <Image src="/Assets/Contentra_Logo_FINAL-removebg-preview.png" alt="Contentra" width={34} height={34} className="size-8 object-contain" />
+            <Image src={ContentraIcon.src} alt="Contentra" width={34} height={34} className="size-8 object-contain" />
             <span className="text-[15px] font-semibold tracking-tight">Contentra</span>
           </Link>
         </div>
@@ -66,7 +67,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex h-16 items-center justify-between px-4 sm:px-6">
             <div className="flex items-center gap-3">
               <Link href="/" className="lg:hidden">
-                <Image src="/Assets/Contentra_Logo_FINAL-removebg-preview.png" alt="Contentra" width={32} height={32} className="size-8 object-contain" />
+                <Image src={ContentraIcon.src} alt="Contentra" width={32} height={32} className="size-8 object-contain" />
               </Link>
               <div>
                 <p className="text-sm font-semibold">{active}</p>
