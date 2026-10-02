@@ -3,6 +3,7 @@ import { requireMembership } from "@/lib/access";
 import { db } from "@/lib/db";
 import { error, handleError, ok } from "@/lib/http";
 import { z } from "zod";
+import { requireEntitlement } from "@/server/access/require-entitlement";
 
 const schema = z.object({
   platform: z.enum(["INSTAGRAM", "TIKTOK", "YOUTUBE", "X", "LINKEDIN", "OTHER"]),
@@ -17,6 +18,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ wor
     const user = await requireUser();
     const { workspaceId } = await params;
     await requireMembership(user.id, workspaceId);
+    await requireEntitlement(workspaceId, "social_connections");
     const connections = await db.socialConnection.findMany({ where: { workspaceId }, orderBy: { createdAt: "desc" } });
     return ok(connections.map(({ accessToken: _accessToken, refreshToken: _refreshToken, ...safe }) => safe));
   } catch (err) {
@@ -30,6 +32,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
     const user = await requireUser();
     const { workspaceId } = await params;
     await requireMembership(user.id, workspaceId, "ADMIN");
+    await requireEntitlement(workspaceId, "social_connections");
     const input = schema.parse(await request.json());
 
     const connection = await db.socialConnection.upsert({
