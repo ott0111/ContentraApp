@@ -34,6 +34,7 @@ model User {
   analytics AnalyticsSnapshot[] @relation("UserAnalytics")
   auditLogs AuditLog[]
   generations GenerationJob[]
+  idempotencyKeys IdempotencyKey[]
 }
 
 model Session {
