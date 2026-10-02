@@ -1,180 +1,118 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { AppPage } from "@/components/app/app-page";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader } from "@/components/ui/card";
+
+type Workspace = { id: string; name: string; plan: string };
+type Result = { title: string; hook: string; script: string; caption: string; cta: string; visualDirection: string };
 
 const formats = [
-  { id: "short", label: "Short-form video", detail: "Hook + script + shot plan" },
-  { id: "post", label: "Social post", detail: "Text-first post with a strong hook" },
-  { id: "ugc", label: "AI UGC", detail: "Character-led vertical video" },
-  { id: "remix", label: "Remix", detail: "Turn a winning idea into yours" },
-];
-
-const platforms = ["TikTok", "Instagram", "YouTube", "X"];
-
-const previewImages = {
-  short: "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format&fit=crop&w=1200&q=85",
-  post: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1200&q=85",
-  ugc: "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1200&q=85",
-  remix: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=85",
-};
+  { id: "VIDEO", label: "Short-form video", detail: "Hook + script + shot plan" },
+  { id: "POST", label: "Social post", detail: "Text-first post with a strong hook" },
+  { id: "UGC", label: "AI UGC", detail: "Character-led vertical video" },
+  { id: "SCRIPT", label: "Remix", detail: "Turn a winning idea into yours" },
+] as const;
+const platforms = [
+  ["TIKTOK", "TikTok"], ["INSTAGRAM", "Instagram"], ["YOUTUBE", "YouTube"], ["X", "X"]
+] as const;
 
 export default function CreatePage() {
-  const [format, setFormat] = useState("short");
-  const [platform, setPlatform] = useState("TikTok");
+  const [workspace, setWorkspace] = useState<Workspace | null>(null);
+  const [format, setFormat] = useState<(typeof formats)[number]["id"]>("VIDEO");
+  const [platform, setPlatform] = useState("TIKTOK");
   const [prompt, setPrompt] = useState("Give me a practical creator-growth idea that feels like advice from someone actually building.");
-  const [generated, setGenerated] = useState(false);
+  const [result, setResult] = useState<Result | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState("");
 
-  const currentFormat = formats.find((item) => item.id === format) ?? formats[0];
+  useEffect(() => {
+    fetch("/api/auth/me").then(async r => {
+      const json = await r.json();
+      setWorkspace(json.data?.workspaces?.[0] ?? null);
+      setLoading(false);
+    }).catch(() => { setError("Couldn't load your workspace."); setLoading(false); });
+  }, []);
 
-  return (
-    <main className="min-h-screen bg-[#f7f7f5] text-zinc-950">
-      <div className="mx-auto flex min-h-screen max-w-[1500px]">
-        <aside className="hidden w-64 shrink-0 border-r border-zinc-200 bg-white p-4 lg:flex lg:flex-col">
-          <Link href="/" className="flex items-center gap-2 px-2 py-3 font-semibold tracking-tight">
-            <span className="grid size-8 place-items-center rounded-xl bg-orange-500 text-sm font-black text-white">C</span>
-            Contentra
-          </Link>
-          <nav className="mt-8 space-y-1">
-            {[
-              ["Overview", "/app", "⌂"],
-              ["Create", "/app/create", "＋"],
-              ["Creatos", "/app/creatos", "◈"],
-              ["Library", "/app/library", "▣"],
-              ["Analytics", "/app/analytics", "↗"],
-            ].map(([label, href, icon]) => (
-              <Link key={label} href={href} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium ${label === "Create" ? "bg-orange-50 text-orange-700" : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-950"}`}>
-                <span className="grid size-7 place-items-center rounded-lg bg-zinc-100 text-xs">{icon}</span>{label}
-              </Link>
-            ))}
-          </nav>
-          <div className="mt-auto border-t border-zinc-100 pt-4">
-            <div className="flex items-center gap-3 rounded-xl bg-zinc-50 p-3">
-              <div className="grid size-9 place-items-center rounded-full bg-orange-100 text-sm font-semibold text-orange-700">Y</div>
-              <div><p className="text-sm font-medium">Your workspace</p><p className="text-xs text-zinc-500">Free plan</p></div>
-            </div>
-          </div>
-        </aside>
+  async function generate() {
+    if (!workspace || !prompt.trim()) return;
+    setGenerating(true); setError("");
+    try {
+      const response = await fetch(`/api/workspaces/${workspace.id}/ai/generate-content`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
+        body: JSON.stringify({ prompt, platform, save: true })
+      });
+      const json = await response.json();
+      if (!response.ok) {
+        setError(json.details?.code === "PLAN_REQUIRED" ? "AI creation is available on Pro and above." : (json.error || "Generation failed."));
+        return;
+      }
+      setResult(json.data.content);
+    } catch { setError("Something went wrong. Try again."); }
+    finally { setGenerating(false); }
+  }
 
-        <section className="min-w-0 flex-1">
-          <header className="sticky top-0 z-30 border-b border-zinc-200/80 bg-[#f7f7f5]/90 px-4 py-3 backdrop-blur-xl sm:px-6">
-            <div className="mx-auto flex max-w-6xl items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold">Create</p>
-                <p className="hidden text-xs text-zinc-500 sm:block">Turn an idea into something worth publishing.</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Link href="/app/creatos" className="hidden rounded-full border border-zinc-200 bg-white px-4 py-2 text-xs font-semibold sm:inline-flex">Find ideas</Link>
-                <button onClick={() => setGenerated(true)} className="rounded-full bg-orange-500 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-orange-600">Generate</button>
-              </div>
-            </div>
-          </header>
+  if (loading) return <AppPage><div className="h-96 animate-pulse rounded-3xl bg-zinc-100" /></AppPage>;
 
-          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
-            <div className="mb-7">
-              <span className="inline-flex rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700">CONTENT ENGINE</span>
-              <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">What are we making?</h1>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-500">Start with a thought, a goal, or a winning idea. Contentra turns it into a publish-ready concept using your Brand Brain and Content DNA.</p>
-            </div>
-
-            <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_440px]">
-              <section className="space-y-5">
-                <div className="rounded-[26px] border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
-                  <div className="flex items-center justify-between">
-                    <div><p className="text-sm font-semibold">1. Choose a format</p><p className="mt-1 text-xs text-zinc-500">Contentra adapts the output to the job.</p></div>
-                    <span className="rounded-full bg-zinc-100 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">Required</span>
-                  </div>
-                  <div className="mt-5 grid gap-2 sm:grid-cols-2">
-                    {formats.map((item) => (
-                      <button key={item.id} onClick={() => setFormat(item.id)} className={`rounded-2xl border p-4 text-left transition ${format === item.id ? "border-orange-300 bg-orange-50 ring-1 ring-orange-200" : "border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50"}`}>
-                        <div className="flex items-center justify-between gap-3">
-                          <span className="text-sm font-semibold">{item.label}</span>
-                          <span className={`grid size-5 place-items-center rounded-full border text-[10px] ${format === item.id ? "border-orange-500 bg-orange-500 text-white" : "border-zinc-300 text-transparent"}`}>✓</span>
-                        </div>
-                        <p className="mt-1 text-xs leading-5 text-zinc-500">{item.detail}</p>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="rounded-[26px] border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
-                  <div><p className="text-sm font-semibold">2. Tell Contentra what you want</p><p className="mt-1 text-xs text-zinc-500">You don't need to write a perfect prompt.</p></div>
-                  <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} className="mt-5 min-h-36 w-full resize-none rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm leading-6 outline-none transition placeholder:text-zinc-400 focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-100" placeholder="What should this content be about?" />
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {["Make it more direct", "Give me 3 hooks", "Make it educational", "Make it controversial"].map((suggestion) => (
-                      <button key={suggestion} onClick={() => setPrompt((value) => value + " " + suggestion + ".")} className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs text-zinc-500 hover:border-orange-200 hover:text-orange-700">{suggestion}</button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="rounded-[26px] border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
-                  <div><p className="text-sm font-semibold">3. Where is it going?</p><p className="mt-1 text-xs text-zinc-500">Choose the platform so the output feels native.</p></div>
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {platforms.map((item) => <button key={item} onClick={() => setPlatform(item)} className={`rounded-full px-4 py-2 text-xs font-semibold transition ${platform === item ? "bg-zinc-950 text-white" : "border border-zinc-200 bg-white text-zinc-500 hover:text-zinc-950"}`}>{item}</button>)}
-                  </div>
-                </div>
-
-                {format === "ugc" && (
-                  <div className="rounded-[26px] border border-orange-200 bg-orange-50 p-5 sm:p-6">
-                    <div className="flex items-start gap-4">
-                      <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-orange-500 text-sm font-black text-white">AI</div>
-                      <div><p className="text-sm font-semibold">AI UGC studio</p><p className="mt-1 text-xs leading-5 text-orange-900/60">Pick a character, generate a brief, then render a vertical video. Your Brand Brain keeps the message on-brand.</p></div>
-                    </div>
-                    <div className="mt-5 grid grid-cols-2 gap-2">
-                      <div className="rounded-2xl border border-orange-200 bg-white p-3"><p className="text-[10px] font-semibold uppercase tracking-wide text-orange-600">Character</p><p className="mt-1 text-sm font-semibold">Creator #014</p><p className="text-xs text-zinc-500">Casual · direct</p></div>
-                      <div className="rounded-2xl border border-orange-200 bg-white p-3"><p className="text-[10px] font-semibold uppercase tracking-wide text-orange-600">Style</p><p className="mt-1 text-sm font-semibold">Talking head</p><p className="text-xs text-zinc-500">9:16 · 30 sec</p></div>
-                    </div>
-                  </div>
-                )}
-              </section>
-
-              <aside className="xl:sticky xl:top-24 xl:self-start">
-                <div className="overflow-hidden rounded-[28px] border border-zinc-200 bg-white shadow-sm">
-                  <div className="border-b border-zinc-100 p-4">
-                    <div className="flex items-center justify-between">
-                      <div><p className="text-xs font-semibold uppercase tracking-wide text-zinc-400">Live preview</p><p className="mt-1 text-sm font-semibold">{currentFormat.label}</p></div>
-                      <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-[10px] font-medium text-zinc-500">{platform}</span>
-                    </div>
-                  </div>
-
-                  <div className="p-4">
-                    <div className="relative overflow-hidden rounded-[22px] bg-zinc-950">
-                      <Image src={previewImages[format as keyof typeof previewImages]} alt="Content preview" width={900} height={1100} className="aspect-[4/5] w-full object-cover opacity-90" unoptimized />
-                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-zinc-950/10 to-transparent" />
-                      <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-                        <span className="rounded-full bg-orange-500 px-2.5 py-1 text-[10px] font-semibold">CONTENTRA</span>
-                        <h2 className="mt-3 text-xl font-semibold leading-tight">{generated ? "The content is ready. Now make it yours." : "Your strongest idea, turned into content."}</h2>
-                        <p className="mt-2 text-xs leading-5 text-zinc-300">{generated ? "Hook, structure and CTA generated from your workspace signals." : "Preview updates as you choose the format, platform and angle."}</p>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 rounded-2xl bg-zinc-50 p-4">
-                      <div className="flex items-center justify-between"><span className="text-xs font-medium text-zinc-500">Hook</span><span className="text-[10px] font-semibold text-orange-600">92% fit</span></div>
-                      <p className="mt-2 text-sm font-semibold leading-5">"Nobody tells you this when you start creating."</p>
-                    </div>
-
-                    <div className="mt-3 grid grid-cols-3 gap-2">
-                      <Metric label="Hook" value="92%" />
-                      <Metric label="Format" value="89%" />
-                      <Metric label="Brand" value="96%" />
-                    </div>
-
-                    <button onClick={() => setGenerated(true)} className="mt-4 w-full rounded-2xl bg-zinc-950 py-3.5 text-sm font-semibold text-white transition hover:bg-orange-500">
-                      {generated ? "Regenerate content" : "Generate content"}
-                    </button>
-                    <p className="mt-3 text-center text-[10px] text-zinc-400">Uses your Brand Brain + Content DNA</p>
-                  </div>
-                </div>
-              </aside>
-            </div>
-          </div>
-        </section>
+  return <AppPage>
+    <div className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+      <div><span className="inline-flex rounded-full bg-orange-100 px-3 py-1 text-[10px] font-bold uppercase tracking-[.16em] text-orange-700">Content engine</span>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">What are we making?</h1>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-500">Start with a thought, goal, or winning idea. Contentra turns it into publish-ready content using your Brand Brain and Content DNA.</p>
       </div>
-    </main>
-  );
+      <div className="flex gap-2"><Button href="/app/creatos" variant="secondary">Find ideas</Button><Button onClick={generate} className="min-w-28">{generating ? "Creating..." : "Generate"}</Button></div>
+    </div>
+
+    {error && <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
+      <div className="space-y-5">
+        <Card><CardHeader eyebrow="Step 1" title="Choose a format" description="Contentra adapts the output to the job." />
+          <div className="grid gap-2 px-5 pb-5 sm:grid-cols-2 sm:px-6 sm:pb-6">{formats.map(item =>
+            <button key={item.id} onClick={() => setFormat(item.id)} className={`rounded-2xl border p-4 text-left transition ${format===item.id ? "border-orange-300 bg-orange-50 ring-1 ring-orange-200" : "border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50"}`}>
+              <div className="flex items-center justify-between"><span className="text-sm font-semibold">{item.label}</span><span className={`grid size-5 place-items-center rounded-full border text-[10px] ${format===item.id ? "border-orange-500 bg-orange-500 text-white" : "border-zinc-300 text-transparent"}`}>✓</span></div>
+              <p className="mt-1 text-xs leading-5 text-zinc-500">{item.detail}</p>
+            </button>)}</div>
+        </Card>
+
+        <Card><CardHeader eyebrow="Step 2" title="Tell Contentra what you want" description="You don't need a perfect prompt." />
+          <div className="px-5 pb-5 sm:px-6 sm:pb-6">
+            <textarea value={prompt} onChange={e=>setPrompt(e.target.value)} className="min-h-40 w-full resize-none rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm leading-6 outline-none transition focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-100" />
+            <div className="mt-3 flex flex-wrap gap-2">{["Make it more direct","Give me 3 hooks","Make it educational","Make it controversial"].map(x =>
+              <button key={x} onClick={()=>setPrompt(v=>v+` ${x}.`)} className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs text-zinc-500 hover:border-orange-200 hover:text-orange-700">{x}</button>)}</div>
+          </div>
+        </Card>
+
+        <Card><CardHeader eyebrow="Step 3" title="Where is it going?" description="Choose the platform so the output feels native." />
+          <div className="flex flex-wrap gap-2 px-5 pb-5 sm:px-6 sm:pb-6">{platforms.map(([id,label]) =>
+            <button key={id} onClick={()=>setPlatform(id)} className={`rounded-full px-4 py-2 text-xs font-semibold transition ${platform===id ? "bg-zinc-950 text-white" : "border border-zinc-200 bg-white text-zinc-500 hover:text-zinc-950"}`}>{label}</button>)}</div>
+        </Card>
+      </div>
+
+      <aside className="xl:sticky xl:top-24 xl:self-start">
+        <Card className="overflow-hidden">
+          <CardHeader eyebrow="Output" title={result?.title || "Your content will appear here"} description={result ? "Saved to your Library automatically." : "Generate a real content package from your workspace signals."} />
+          <div className="px-5 pb-5 sm:px-6 sm:pb-6">
+            {result ? <div className="space-y-4">
+              <Block label="Hook" text={result.hook} />
+              <Block label="Script" text={result.script} />
+              <Block label="Caption" text={result.caption} />
+              <Block label="CTA" text={result.cta} />
+              <Block label="Visual direction" text={result.visualDirection} />
+              <Button href="/app/library" variant="secondary" className="w-full">Open in Library</Button>
+            </div> :
+            <div className="rounded-2xl bg-zinc-950 p-5 text-white"><p className="text-xs font-semibold uppercase tracking-wide text-orange-300">{platforms.find(x=>x[0]===platform)?.[1]} · {format}</p><p className="mt-3 text-xl font-semibold leading-tight">Turn the idea into something you can actually post.</p><p className="mt-2 text-sm leading-6 text-zinc-400">Contentra uses your Brand Brain + Content DNA instead of giving you a blank AI chat box.</p><button onClick={generate} disabled={generating} className="mt-5 w-full rounded-xl bg-orange-500 py-3 text-sm font-semibold hover:bg-orange-600 disabled:opacity-60">{generating ? "Generating..." : "Generate content"}</button></div>}
+          </div>
+        </Card>
+      </aside>
+    </div>
+  </AppPage>;
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
-  return <div className="rounded-2xl border border-zinc-200 bg-white p-3 text-center"><p className="text-[10px] text-zinc-400">{label}</p><p className="mt-1 text-sm font-semibold">{value}</p></div>;
+function Block({label,text}:{label:string;text:string}) {
+  return <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4"><p className="text-[10px] font-bold uppercase tracking-[.14em] text-orange-600">{label}</p><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-zinc-700">{text}</p></div>;
 }
