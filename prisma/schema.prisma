@@ -7,18 +7,83 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum MembershipRole { OWNER ADMIN MEMBER VIEWER }
-enum ContentType { POST VIDEO SCRIPT CAPTION HOOK IDEA IMAGE UGC }
-enum ContentStatus { DRAFT SCHEDULED PUBLISHED ARCHIVED }
-enum OpportunityStatus { NEW SAVED DISMISSED ACTIONED }
-enum Platform { INSTAGRAM TIKTOK YOUTUBE X LINKEDIN OTHER }
-enum ConnectionStatus { ACTIVE EXPIRED REVOKED ERROR }
-enum Plan { FREE PRO BUSINESS AGENCY }
-enum SubscriptionStatus { TRIALING ACTIVE PAST_DUE CANCELED EXPIRED }
-enum BillingProvider { PADDLE STRIPE MANUAL }
-enum GenerationStatus { QUEUED PROCESSING COMPLETED FAILED }
-enum BackgroundJobStatus { QUEUED PROCESSING COMPLETED FAILED }
-enum WebhookStatus { RECEIVED PROCESSED FAILED }
+enum MembershipRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+enum ContentType {
+  POST
+  VIDEO
+  SCRIPT
+  CAPTION
+  HOOK
+  IDEA
+  IMAGE
+  UGC
+}
+enum ContentStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+enum OpportunityStatus {
+  NEW
+  SAVED
+  DISMISSED
+  ACTIONED
+}
+enum Platform {
+  INSTAGRAM
+  TIKTOK
+  YOUTUBE
+  X
+  LINKEDIN
+  OTHER
+}
+enum ConnectionStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+  ERROR
+}
+enum Plan {
+  FREE
+  PRO
+  BUSINESS
+  AGENCY
+}
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  EXPIRED
+}
+enum BillingProvider {
+  PADDLE
+  STRIPE
+  MANUAL
+}
+enum GenerationStatus {
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+enum BackgroundJobStatus {
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+enum WebhookStatus {
+  RECEIVED
+  PROCESSED
+  FAILED
+}
 
 model User {
   id String @id @default(cuid())
