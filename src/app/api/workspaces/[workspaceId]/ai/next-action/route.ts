@@ -3,12 +3,14 @@ import { requireMembership } from "@/lib/access";
 import { db } from "@/lib/db";
 import { generateText } from "@/lib/ai";
 import { error, handleError, ok } from "@/lib/http";
+import { requireEntitlement } from "@/server/access/require-entitlement";
 
 export async function POST(_request: Request, { params }: { params: Promise<{ workspaceId: string }> }) {
   try {
     const user = await requireUser();
     const { workspaceId } = await params;
     await requireMembership(user.id, workspaceId, "MEMBER");
+    await requireEntitlement(workspaceId, "next_actions");
 
     const [brain, dna, analytics, recentContent] = await Promise.all([
       db.brandBrain.findUnique({ where: { workspaceId } }),
