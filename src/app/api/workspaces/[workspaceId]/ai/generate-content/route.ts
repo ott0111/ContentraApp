@@ -3,7 +3,6 @@ import { requireMembership } from "@/lib/access";
 import { db } from "@/lib/db";
 import { generateText } from "@/lib/ai";
 import { error, handleError, ok } from "@/lib/http";
-import { requireEntitlement } from "@/server/access/require-entitlement";
 import { parseJsonObject } from "@/lib/json";
 import { z } from "zod";
 import { requireEntitlement } from "@/server/access/require-entitlement";
