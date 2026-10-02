@@ -3,13 +3,13 @@ import { db } from "@/lib/db";
 
 export async function getIdempotencyState(input: {
   key: string;
-  workspaceId?: string;
-  userId?: string;
+  workspaceId: string;
+  userId: string;
   body: unknown;
 }) {
   const requestHash = createHash("sha256").update(JSON.stringify(input.body)).digest("hex");
   const existing = await db.idempotencyKey.findUnique({
-    where: { workspaceId_key: { workspaceId: input.workspaceId ?? "", key: input.key } }
+    where: { workspaceId_key: { workspaceId: input.workspaceId, key: input.key } }
   }).catch(() => null);
 
   if (!existing) {
