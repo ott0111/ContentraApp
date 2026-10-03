@@ -46,3 +46,8 @@ Core product:
 - POST /api/workspaces/:workspaceId/ai/next-action
 
 The UI can be built against these contracts without redesigning the database layer.
+
+
+## Deployment
+
+Production deployment verification marker.
