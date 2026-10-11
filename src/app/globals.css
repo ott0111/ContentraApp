@@ -80,3 +80,14 @@ button:disabled { cursor: not-allowed; }
     padding-bottom: 5.5rem;
   }
 }
+
+
+/* Global typography and spacing polish */
+:where(p, li) { text-wrap: pretty; }
+:where(h1, h2, h3, h4) { text-wrap: balance; }
+:where(input, textarea, select, button) { line-height: 1.45; }
+main :where(p) { line-height: 1.65; }
+@media (max-width: 640px) {
+  main :where(h1) { overflow-wrap: anywhere; }
+  main :where(p) { line-height: 1.6; }
+}
